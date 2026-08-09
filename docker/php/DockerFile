@@ -1,0 +1,19 @@
+FROM php:8.3-fpm
+
+RUN apt-get update \
+    && apt-get install -y \
+        curl \
+        gnupg \
+        ca-certificates \
+        unixodbc-dev \
+        $PHPIZE_DEPS \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        -o /etc/apt/keyrings/microsoft.asc \
+    && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/microsoft.asc] https://packages.microsoft.com/debian/12/prod bookworm main" \
+        > /etc/apt/sources.list.d/microsoft-prod.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
+    && pecl install sqlsrv-5.13.1 pdo_sqlsrv-5.13.1 \
+    && docker-php-ext-enable sqlsrv pdo_sqlsrv \
+    && rm -rf /var/lib/apt/lists/*
