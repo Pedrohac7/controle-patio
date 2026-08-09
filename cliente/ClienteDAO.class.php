@@ -104,6 +104,17 @@ class ClienteDAO
         ]);
     }
 
+    public function excluir(int $idcliente): void
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM cliente WHERE idcliente = :idcliente'
+        );
+
+        $stmt->execute([
+            ':idcliente' => $idcliente
+        ]);
+    }
+
     private function criarClienteAPartirDaLinha(array $row): Cliente
     {
         $cliente = new Cliente(

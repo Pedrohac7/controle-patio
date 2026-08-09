@@ -143,6 +143,36 @@ if (
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $idcliente = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
+
+    if ($idcliente === false || $idcliente === null || $idcliente <= 0) {
+        http_response_code(400);
+
+        echo json_encode([
+            'message' => 'ID do cliente inválido'
+        ]);
+
+        exit;
+    }
+
+    if ($clienteDAO->buscarPorId($idcliente) === null) {
+        http_response_code(404);
+
+        echo json_encode([
+            'message' => 'Cliente não encontrado'
+        ]);
+
+        exit;
+    }
+
+    $clienteDAO->excluir($idcliente);
+
+    http_response_code(204);
+
+    exit;
+}
+
 http_response_code(405);
 
 echo json_encode([
