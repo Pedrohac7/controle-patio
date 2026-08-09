@@ -86,6 +86,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+if (
+    $_SERVER['REQUEST_METHOD'] === 'PUT'
+    || $_SERVER['REQUEST_METHOD'] === 'PATCH'
+) {
+    $idcliente = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
+
+    if ($idcliente === false || $idcliente === null || $idcliente <= 0) {
+        http_response_code(400);
+
+        echo json_encode([
+            'message' => 'ID do cliente inválido'
+        ]);
+
+        exit;
+    }
+
+    if ($clienteDAO->buscarPorId($idcliente) === null) {
+        http_response_code(404);
+
+        echo json_encode([
+            'message' => 'Cliente não encontrado'
+        ]);
+
+        exit;
+    }
+
+    $dados = json_decode(file_get_contents('php://input'), true);
+
+    if (!isset($dados['tipo'], $dados['nome'])) {
+        http_response_code(400);
+
+        echo json_encode([
+            'message' => 'Tipo e nome são obrigatórios'
+        ]);
+
+        exit;
+    }
+
+    $cliente = new Cliente(
+        $dados['tipo'],
+        $dados['nome'],
+        $dados['cpf'] ?? null,
+        $dados['cnpj'] ?? null,
+        $dados['telefone'] ?? null
+    );
+
+    $cliente->setIdcliente($idcliente);
+
+    $clienteDAO->atualizar($cliente);
+
+    echo json_encode([
+        'message' => 'Cliente atualizado com sucesso'
+    ]);
+
+    exit;
+}
+
 http_response_code(405);
 
 echo json_encode([

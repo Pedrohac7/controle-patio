@@ -73,6 +73,37 @@ class ClienteDAO
         ]);
     }
 
+    public function atualizar(Cliente $cliente): void
+    {
+        if ($cliente->getIdcliente() === null) {
+            throw new InvalidArgumentException(
+                'O cliente precisa ter um ID para ser atualizado.'
+            );
+        }
+
+        $sql = '
+            UPDATE cliente
+            SET
+                tipo = :tipo,
+                nome = :nome,
+                cpf = :cpf,
+                cnpj = :cnpj,
+                telefone = :telefone
+            WHERE idcliente = :idcliente
+        ';
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute([
+            ':idcliente' => $cliente->getIdcliente(),
+            ':tipo' => $cliente->getTipo(),
+            ':nome' => $cliente->getNome(),
+            ':cpf' => $cliente->getCpf(),
+            ':cnpj' => $cliente->getCnpj(),
+            ':telefone' => $cliente->getTelefone()
+        ]);
+    }
+
     private function criarClienteAPartirDaLinha(array $row): Cliente
     {
         $cliente = new Cliente(
