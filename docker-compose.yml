@@ -4,13 +4,15 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
     volumes:
-      - ./public:/var/www/html
+      - ./:/var/www/html
+    env_file:
+      - .env
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
     ports:
       - "1433:1433"
     volumes:
