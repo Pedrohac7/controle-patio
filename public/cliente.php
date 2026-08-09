@@ -67,6 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dados = json_decode(file_get_contents('php://input'), true);
 
+    if (!is_array($dados) || !isset($dados['tipo'], $dados['nome'])) {
+        http_response_code(400);
+
+        echo json_encode([
+            'message' => 'Tipo e nome são obrigatórios'
+        ]);
+
+        exit;
+    }
+
     $cliente = new Cliente(
         $dados['tipo'],
         $dados['nome'],
