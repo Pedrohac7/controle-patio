@@ -18,26 +18,29 @@ class ClienteDAO
         $clientes = [];
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $cliente = new Cliente(
-                $row['tipo'],
-                $row['nome'],
-                $row['cpf'],
-                $row['cnpj'],
-                $row['telefone']
-            );
-
-            $cliente->setIdcliente($row['idcliente']);
-
-            if ($row['data_cadastro'] !== null) {
-                $cliente->setDataCadastro(
-                    new DateTime($row['data_cadastro'])
-                );
-            }
-
-            $clientes[] = $cliente;
+            $clientes[] = $this->criarClienteAPartirDaLinha($row);
         }
 
         return $clientes;
+    }
+
+    public function buscarPorId(int $idcliente): ?Cliente
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM cliente WHERE idcliente = :idcliente'
+        );
+
+        $stmt->execute([
+            ':idcliente' => $idcliente
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->criarClienteAPartirDaLinha($row);
     }
 
     public function inserir(Cliente $cliente): void
@@ -68,5 +71,26 @@ class ClienteDAO
             ':cnpj' => $cliente->getCnpj(),
             ':telefone' => $cliente->getTelefone()
         ]);
+    }
+
+    private function criarClienteAPartirDaLinha(array $row): Cliente
+    {
+        $cliente = new Cliente(
+            $row['tipo'],
+            $row['nome'],
+            $row['cpf'],
+            $row['cnpj'],
+            $row['telefone']
+        );
+
+        $cliente->setIdcliente((int) $row['idcliente']);
+
+        if ($row['data_cadastro'] !== null) {
+            $cliente->setDataCadastro(
+                new DateTime($row['data_cadastro'])
+            );
+        }
+
+        return $cliente;
     }
 }

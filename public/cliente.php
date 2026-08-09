@@ -8,6 +8,43 @@ $clienteDAO = new ClienteDAO($pdo);
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (isset($_GET['id'])) {
+        $idcliente = filter_var($_GET['id'], FILTER_VALIDATE_INT);
+
+        if ($idcliente === false || $idcliente <= 0) {
+            http_response_code(400);
+
+            echo json_encode([
+                'message' => 'ID do cliente inválido'
+            ]);
+
+            exit;
+        }
+
+        $cliente = $clienteDAO->buscarPorId($idcliente);
+
+        if ($cliente === null) {
+            http_response_code(404);
+
+            echo json_encode([
+                'message' => 'Cliente não encontrado'
+            ]);
+
+            exit;
+        }
+
+        echo json_encode([
+            'idcliente' => $cliente->getIdcliente(),
+            'tipo' => $cliente->getTipo(),
+            'nome' => $cliente->getNome(),
+            'cpf' => $cliente->getCpf(),
+            'cnpj' => $cliente->getCnpj(),
+            'telefone' => $cliente->getTelefone(),
+        ]);
+
+        exit;
+    }
+
     $clientes = $clienteDAO->listar();
 
     echo json_encode(
